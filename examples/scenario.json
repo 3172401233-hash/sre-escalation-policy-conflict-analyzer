@@ -1,0 +1,92 @@
+{
+  "now": "2026-11-22T02:00:00Z",
+  "raceWindowMinutes": 5,
+  "events": [
+    {
+      "id": "ev-db-metric",
+      "fingerprint": "fp-db-cpu",
+      "source": "metric",
+      "severity": "critical",
+      "labels": { "service": "billing", "host": "db-1" },
+      "startsAt": "2026-11-22T00:00:00Z",
+      "endsAt": null
+    },
+    {
+      "id": "ev-db-metric-dup",
+      "fingerprint": "fp-db-cpu",
+      "source": "metric",
+      "severity": "critical",
+      "labels": { "service": "billing", "host": "db-1" },
+      "startsAt": "2026-11-22T00:01:00Z",
+      "endsAt": null
+    },
+    {
+      "id": "ev-api-log",
+      "fingerprint": "fp-api-5xx",
+      "source": "log",
+      "severity": "major",
+      "labels": { "service": "billing", "host": "api-1" },
+      "startsAt": "2026-11-22T00:05:00Z",
+      "endsAt": null
+    },
+    {
+      "id": "ev-checkout-biz",
+      "fingerprint": "fp-checkout-drop",
+      "source": "business",
+      "severity": "critical",
+      "labels": { "service": "billing", "host": "api-2" },
+      "startsAt": "2026-11-22T00:06:00Z",
+      "endsAt": null
+    },
+    {
+      "id": "ev-search-log",
+      "fingerprint": "fp-search-5xx",
+      "source": "log",
+      "severity": "critical",
+      "labels": { "service": "search", "host": "api-1" },
+      "startsAt": "2026-11-22T00:07:00Z",
+      "endsAt": null
+    }
+  ],
+  "rootCauses": [
+    { "upstream": "fp-db-cpu", "downstream": "fp-api-5xx" },
+    { "upstream": "fp-api-5xx", "downstream": "fp-checkout-drop" }
+  ],
+  "silences": [
+    {
+      "id": "silence-db-maintenance",
+      "matchers": { "fingerprint": "fp-db-cpu" },
+      "startsAt": "2026-11-21T23:00:00Z",
+      "endsAt": "2026-11-22T01:00:00Z"
+    }
+  ],
+  "escalationPolicies": [
+    {
+      "id": "policy-critical",
+      "match": { "severities": ["critical", "major"] },
+      "levels": [
+        { "afterMinutes": 0, "notify": ["sre-primary"] },
+        { "afterMinutes": 15, "notify": ["sre-primary", "sre-secondary"] },
+        { "afterMinutes": 30, "notify": ["sre-secondary", "sre-manager"] }
+      ]
+    }
+  ],
+  "oncall": {
+    "sre-primary": {
+      "schedule": [
+        { "from": "2026-11-21T00:00:00Z", "to": "2026-11-22T01:30:00Z", "user": "alice" },
+        { "from": "2026-11-22T01:30:00Z", "to": "2026-11-23T00:00:00Z", "user": "bob" }
+      ]
+    },
+    "sre-secondary": {
+      "schedule": [
+        { "from": "2026-11-21T00:00:00Z", "to": "2026-11-23T00:00:00Z", "user": "carol" }
+      ]
+    },
+    "sre-manager": {
+      "schedule": [
+        { "from": "2026-11-21T00:00:00Z", "to": "2026-11-23T00:00:00Z", "user": "dave" }
+      ]
+    }
+  }
+}
